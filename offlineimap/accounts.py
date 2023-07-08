@@ -355,6 +355,10 @@ class SyncableAccount(Account):
         hook = self.getconf('presynchook', '')
         self.callhook(hook, "quick" if quick else "full")
 
+        prehook_content = self.getconf('presync_hook', '')
+        if prehook_content:
+            self.localeval.eval(prehook_content)
+
         if self.utf_8_support and self.remoterepos.getdecodefoldernames():
             raise OfflineImapError("Configuration mismatch in account " +
                                    "'%s'. " % self.getname() +
@@ -443,6 +447,10 @@ class SyncableAccount(Account):
             # Sync went fine. Hold or drop depending on config.
             localrepos.holdordropconnections()
             remoterepos.holdordropconnections()
+
+        posthook_content = self.getconf('postsync_hook', '')
+        if posthook_content:
+            self.localeval.eval(posthook_content)
 
         hook = self.getconf('postsynchook', '')
         self.callhook(hook, "quick" if quick else "full")
